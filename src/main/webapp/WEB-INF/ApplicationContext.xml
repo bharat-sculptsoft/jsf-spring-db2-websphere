@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans">
+
+	<context:component-scan base-package="com.ss.*" />
+
+	<bean
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		id="dataSource">
+		<property name="driverClassName"
+			value="com.ibm.db2.jcc.DB2Driver" />
+		<property name="url"
+			value="jdbc:db2://localhost:25000/jsf_db" />
+		<property name="username" value="db2admin" />
+		<property name="password" value="admin" />
+	</bean>
+
+
+	<bean
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		id="emf">
+		<property name="packagesToScan" value="com.ss.*" />
+		<property name="dataSource" ref="dataSource" />
+		<property value="dev" name="persistenceUnitName" />
+		<!-- JPA properties -->
+		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+
+		<!-- Hibernate Properties -->
+		<property name="jpaProperties">
+
+			<props>
+				<!-- <prop key="spring.jpa.properties.hibernate.dialect">org.hibernate.dialect.DB2Dialect</prop>
+				<prop key="hibernate.ddl-auto">update</prop> -->
+
+				<!-- <prop key="hibernate.hbm2ddl.auto">update</prop> <prop key="hibernate.show_sql">true</prop> -->
+			</props>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
+		id="jpaVendorAdapter">
+		<property name="showSql" value="true" />
+		<property name="generateDdl" value="true" />
+
+		<property name="databasePlatform"
+			value="org.hibernate.dialect.DB2Dialect" />
+
+	</bean>
+
+
+	<bean class="org.springframework.orm.jpa.JpaTransactionManager"
+		id="txManager">
+		<property name="entityManagerFactory" ref="emf" />
+	</bean>
+
+	<tx:annotation-driven proxy-target-class="true"
+		transaction-manager="txManager" />
+</beans>
